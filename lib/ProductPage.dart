@@ -221,10 +221,8 @@ class _ProductPageState extends State<ProductPage>
                               for (var i = 0;
                                   i < wishlistCollection.documents.length;
                                   i++) {
-                                if (wishlistCollection.documents[i]
-                                            ['product_image']
-                                        .toString()
-                                        .compareTo(product.productImage) ==
+                                if (wishlistCollection.documents[i].documentID
+                                        .compareTo(product.productID) ==
                                     0) {
                                   containsAlready = true;
                                   break;
@@ -243,7 +241,7 @@ class _ProductPageState extends State<ProductPage>
                                     .collection('users')
                                     .document(userId)
                                     .collection('wishlist')
-                                    .document((wishlist_items - 1).toString())
+                                    .document(product.productID)
                                     .setData(product.toJson());
                               }
                             } else {
@@ -259,7 +257,7 @@ class _ProductPageState extends State<ProductPage>
                                   .collection('users')
                                   .document(userId)
                                   .collection('wishlist')
-                                  .document((wishlist_items - 1).toString())
+                                  .document(product.productID)
                                   .delete();
                             }
                           },
