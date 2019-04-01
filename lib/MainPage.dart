@@ -1,4 +1,5 @@
 import 'package:bachatbazaar/CartPage.dart';
+import 'package:bachatbazaar/CategoryPage.dart';
 import 'package:bachatbazaar/LoginPage.dart';
 import 'package:bachatbazaar/OrdersPage.dart';
 import 'package:bachatbazaar/ProductPage.dart';
@@ -114,40 +115,53 @@ class _MainPageState extends State<MainPage> {
                   itemBuilder: (BuildContext context, int index) {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 100,
-                        width: 100,
-                        decoration: new BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: InkWell(
-                          child: new Material(
-                            shape: new RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CategoryPage(
+                                    category: categories[index],
+                                    categoryColor: categoryColor[index],
+                                  ),
                             ),
-                            child: new Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    new Icon(
-                                      categoryIcons[index],
-                                      size: 18,
-                                      color: categoryColor[index],
-                                    ),
-                                    new SizedBox(
-                                      height: 10,
-                                    ),
-                                    new Text(
-                                      categories[index],
-                                      style: new TextStyle(fontSize: 12),
-                                    )
-                                  ],
+                          );
+                        },
+                        child: Container(
+                          height: 100,
+                          width: 100,
+                          decoration: new BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: InkWell(
+                            child: new Material(
+                              shape: new RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: new Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      new Icon(
+                                        categoryIcons[index],
+                                        size: 18,
+                                        color: categoryColor[index],
+                                      ),
+                                      new SizedBox(
+                                        height: 10,
+                                      ),
+                                      new Text(
+                                        categories[index],
+                                        style: new TextStyle(fontSize: 12),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
+                              elevation: 4.0,
                             ),
-                            elevation: 4.0,
                           ),
                         ),
                       ),
@@ -190,7 +204,7 @@ class _MainPageState extends State<MainPage> {
 
                     default:
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical:8.0),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: new ListView(
                           scrollDirection: Axis.horizontal,
                           children: snapshot.data.documents
@@ -365,7 +379,8 @@ class _MainPageState extends State<MainPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  new MaterialPageRoute(builder: (context) => new WishlistPage()),
+                  new MaterialPageRoute(
+                      builder: (context) => new WishlistPage()),
                 );
               },
             ),
