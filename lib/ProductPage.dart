@@ -518,63 +518,90 @@ class _ProductPageState extends State<ProductPage>
                       ),
                     ),
                   ),
-                  Container(
-                    height: 50,
-                    child: new Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        SizedBox(
-                          height: 50,
-                          child: new FlatButton(
-                            child: new Text(
-                              "-",
-                              style: new TextStyle(
-                                  color: Colors.redAccent, fontSize: 30),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                if (quantity != 1) {
-                                  quantity--;
-                                }
-
-                                print(quantity);
-                              });
-                              //Navigator.of(context).pop();
-                            },
-                          ),
+                        new Text(
+                          "Quantity: ",
+                          softWrap: true,
+                          style: new TextStyle(
+                              fontSize: 14.0,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.w700),
+                          maxLines: 2,
                         ),
-                        Expanded(
-                            child: Container(
-                                alignment: Alignment.center,
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      height: 40,
-                                      width: 30,
-                                      color: Theme.of(context).primaryColor,
-                                      child: new Text(
-                                        quantity.toString(),
-                                        style: new TextStyle(
-                                            fontSize: 20, color: Colors.white),
-                                      ),
-                                    )))),
-                        SizedBox(
-                          height: 50,
-                          child: new FlatButton(
-                            child: new Text(
-                              "+",
-                              style: new TextStyle(
-                                  color: Colors.green, fontSize: 30),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                quantity++;
-                              });
-                              print(quantity);
-                              //Navigator.of(context).pop();
-                            },
+                        new Padding(
+                          padding: new EdgeInsets.symmetric(horizontal: 2.0),
+                        ),
+                        Container(
+                          decoration: new BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(16)
+                          ),
+                          height: 30,
+                          child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              SizedBox(
+                                height: 30,
+                                width: 40,
+                                child: new FlatButton(
+                                  child: new Text(
+                                    "-",
+                                    style: new TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      if (quantity != 1) {
+                                        quantity--;
+                                      }
+
+                                      print(quantity);
+                                    });
+                                    //Navigator.of(context).pop();
+                                  },
+                                ),
+                              ),
+                              Container(
+                                  alignment: Alignment.center,
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 30,
+                                        width: 30,
+                                        color: Theme.of(context).primaryColor,
+                                        child: new Text(
+                                          quantity.toString(),
+                                          style: new TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white),
+                                        ),
+                                      ))),
+                              SizedBox(
+                                height: 30,
+                                width: 40,
+                                child: new FlatButton(
+                                  child: new Text(
+                                    "+",
+                                    style: new TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      quantity++;
+                                    });
+                                    print(quantity);
+                                    //Navigator.of(context).pop();
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -657,7 +684,7 @@ class _ProductPageState extends State<ProductPage>
                                 int cart_price = user['cart_total_price'];
 
                                 bool alreadyPresentInCart = false;
-
+                                bool sameSeller = true;
                                 for (var i = 0; i < cart_items; i++) {
                                   DocumentSnapshot cartData = await Firestore
                                       .instance
@@ -669,6 +696,8 @@ class _ProductPageState extends State<ProductPage>
 
                                   Product cartProduct = Product.fromJson(
                                       cartData['product_data']);
+
+                                      
 
                                   if (cartProduct.productImage ==
                                       product.productImage) {
@@ -696,9 +725,35 @@ class _ProductPageState extends State<ProductPage>
                                         });
                                     break;
                                   }
+
+                                  if(cartProduct.productSellerName != product.productSellerName){
+                                    sameSeller = false;
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: new Text(
+                                                "Can't add to cart"),
+                                            content: new Text(
+                                              "You cannot add two products from two different sellers. ",
+                                              style: new TextStyle(
+                                                  fontFamily: "Subtitle"),
+                                            ),
+                                            actions: <Widget>[
+                                              new FlatButton(
+                                                child: new Text("Close"),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                    break;
+                                  }
                                 }
 
-                                if (!alreadyPresentInCart) {
+                                if (!alreadyPresentInCart && sameSeller) {
                                   int totalPrice = quantity *
                                       (product.productOffer
                                           ? product.productOfferPrice
