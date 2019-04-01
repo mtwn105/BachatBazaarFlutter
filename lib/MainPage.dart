@@ -2,6 +2,7 @@ import 'package:bachatbazaar/CartPage.dart';
 import 'package:bachatbazaar/LoginPage.dart';
 import 'package:bachatbazaar/OrdersPage.dart';
 import 'package:bachatbazaar/ProductPage.dart';
+import 'package:bachatbazaar/WishlistPage.dart';
 import 'package:bachatbazaar/model/Product.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -364,7 +365,7 @@ class _MainPageState extends State<MainPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  new MaterialPageRoute(builder: (context) => new OrdersPage()),
+                  new MaterialPageRoute(builder: (context) => new WishlistPage()),
                 );
               },
             ),

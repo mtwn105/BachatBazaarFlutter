@@ -28,7 +28,7 @@ class _ProductPageState extends State<ProductPage>
   Color selectedCategoryColor;
   IconData selectedCategoryIcon;
 
-  bool favorite;
+  bool favorite = false;
   IconData favoriteIcon;
   List categories = ["Food", "Clothes", "Medical", "Handcraft", "Cosmetics"];
 
@@ -58,9 +58,24 @@ class _ProductPageState extends State<ProductPage>
   String userId = "";
   String phoneNumber = "";
 
-  void checkFavorite() {
+  Future checkFavorite() async {
+    QuerySnapshot wishlistCollection = await Firestore.instance
+        .collection('users')
+        .document(userId)
+        .collection('wishlist')
+        .getDocuments();
+    for (var i = 0; i < wishlist_items; i++) {
+      if (wishlistCollection.documents[i].documentID
+              .compareTo(product.productID) ==
+          0) {
+        setState(() {
+          favorite = true;
+        });
+        break;
+      }
+    }
+
     setState(() {
-      favorite = false;
       if (favorite) {
         favoriteIcon = FontAwesomeIcons.solidHeart;
       } else {
@@ -99,6 +114,8 @@ class _ProductPageState extends State<ProductPage>
     }
   }
 
+  int wishlist_items = 0;
+
   Future userDetails() async {
     String uid = await auth.currentUser().then((user) => user.uid);
     DocumentSnapshot userInfo =
@@ -106,7 +123,10 @@ class _ProductPageState extends State<ProductPage>
 
     setState(() {
       userId = uid;
+      wishlist_items = userInfo['wishlist_items'];
     });
+
+    await checkFavorite();
   }
 
   @override
@@ -123,7 +143,6 @@ class _ProductPageState extends State<ProductPage>
     animationController.forward();
     userDetails();
     categoryCheck();
-    checkFavorite();
     quantity = 1;
     super.initState();
   }
@@ -538,9 +557,8 @@ class _ProductPageState extends State<ProductPage>
                         ),
                         Container(
                           decoration: new BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(16)
-                          ),
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(16)),
                           height: 30,
                           child: new Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -697,8 +715,6 @@ class _ProductPageState extends State<ProductPage>
                                   Product cartProduct = Product.fromJson(
                                       cartData['product_data']);
 
-                                      
-
                                   if (cartProduct.productImage ==
                                       product.productImage) {
                                     alreadyPresentInCart = true;
@@ -726,14 +742,15 @@ class _ProductPageState extends State<ProductPage>
                                     break;
                                   }
 
-                                  if(cartProduct.productSellerName != product.productSellerName){
+                                  if (cartProduct.productSellerName !=
+                                      product.productSellerName) {
                                     sameSeller = false;
                                     showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
-                                            title: new Text(
-                                                "Can't add to cart"),
+                                            title:
+                                                new Text("Can't add to cart"),
                                             content: new Text(
                                               "You cannot add two products from two different sellers. ",
                                               style: new TextStyle(
