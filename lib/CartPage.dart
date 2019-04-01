@@ -40,7 +40,6 @@ class _CartPageState extends State<CartPage> {
   @override
   void initState() {
     userDetails();
-
     super.initState();
   }
 
