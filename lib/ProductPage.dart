@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class ProductPage extends StatefulWidget {
   final Product product;
@@ -24,6 +25,8 @@ final FirebaseAuth auth = FirebaseAuth.instance;
 
 class _ProductPageState extends State<ProductPage>
     with TickerProviderStateMixin {
+  bool addToCart = false;
+
   String category = "";
   Color selectedCategoryColor;
   IconData selectedCategoryIcon;
@@ -625,205 +628,297 @@ class _ProductPageState extends State<ProductPage>
                       ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                        height: 60,
-                        alignment: Alignment.center,
-                        child: SizedBox(
+                  addToCart
+                      ? new Container(
                           height: 60,
-                          width: MediaQuery.of(context).size.width / 2 - 12,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16.0),
-                            ),
-                            child: RaisedButton(
-                              child: new Text("Negotiate"),
-                              color: Colors.orangeAccent,
-                              onPressed: () async {
-                                if (quantity >= product.productMinStock) {
-                                  Navigator.push(
-                                    context,
-                                    new MaterialPageRoute(
-                                        builder: (context) => new NegotiatePage(
-                                            product: product)),
-                                  );
-                                } else {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: new Text("Can't Negotiate"),
-                                        content: new Text(
-                                          "Purchase at least " +
-                                              product.productMinStock
-                                                  .toString() +
-                                              " quantity to enter the negotitation",
-                                          style: new TextStyle(
-                                              fontFamily: "Subtitle"),
-                                        ),
-                                        actions: <Widget>[
-                                          new FlatButton(
-                                            child: new Text("Close"),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 60,
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          height: 60,
-                          width: MediaQuery.of(context).size.width / 2 - 12,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.only(
-                                bottomRight: Radius.circular(16)),
-                            child: RaisedButton(
-                              child: new Text("Add to Cart"),
+                          decoration: BoxDecoration(
                               color: Theme.of(context).accentColor,
-                              onPressed: () async {
-                                DocumentSnapshot user = await Firestore.instance
-                                    .collection('users')
-                                    .document(userId)
-                                    .get();
-
-                                int cart_items = user['cart_items'];
-                                int cart_price = user['cart_total_price'];
-
-                                bool alreadyPresentInCart = false;
-                                bool sameSeller = true;
-                                for (var i = 0; i < cart_items; i++) {
-                                  DocumentSnapshot cartData = await Firestore
-                                      .instance
-                                      .collection('users')
-                                      .document(userId)
-                                      .collection('cart')
-                                      .document(i.toString())
-                                      .get();
-
-                                  Product cartProduct = Product.fromJson(
-                                      cartData['product_data']);
-
-                                  if (cartProduct.productImage ==
-                                      product.productImage) {
-                                    alreadyPresentInCart = true;
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text(
-                                                "Product Already in Cart"),
-                                            content: new Text(
-                                              "Empty the cart and then add the product again.",
-                                              style: new TextStyle(
-                                                  fontFamily: "Subtitle"),
-                                            ),
-                                            actions: <Widget>[
-                                              new FlatButton(
-                                                child: new Text("Close"),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                    break;
-                                  }
-
-                                  if (cartProduct.productSellerName !=
-                                      product.productSellerName) {
-                                    sameSeller = false;
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title:
-                                                new Text("Can't add to cart"),
-                                            content: new Text(
-                                              "You cannot add two products from two different sellers. ",
-                                              style: new TextStyle(
-                                                  fontFamily: "Subtitle"),
-                                            ),
-                                            actions: <Widget>[
-                                              new FlatButton(
-                                                child: new Text("Close"),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                    break;
-                                  }
-                                }
-
-                                if (!alreadyPresentInCart && sameSeller) {
-                                  int totalPrice = quantity *
-                                      (product.productOffer
-                                          ? product.productOfferPrice
-                                          : product.productPrice);
-
-                                  Map<String, dynamic> productData =
-                                      new HashMap();
-                                  productData['product_data'] =
-                                      product.toJson();
-                                  productData['product_price'] =
-                                      product.productOffer
-                                          ? product.productOfferPrice
-                                          : product.productPrice;
-                                  productData['product_quantity'] = quantity;
-                                  productData['product_total_price'] =
-                                      totalPrice;
-
-                                  print(cart_items);
-                                  print(cart_price);
-
-                                  cart_items++;
-                                  cart_price += totalPrice;
-
-                                  await Firestore.instance
-                                      .collection('users')
-                                      .document(userId)
-                                      .collection('cart')
-                                      .document((cart_items - 1).toString())
-                                      .setData(productData);
-
-                                  await Firestore.instance
-                                      .collection('users')
-                                      .document(userId)
-                                      .updateData({
-                                    'cart_items': cart_items,
-                                    'cart_total_price': cart_price,
-                                  });
-
-                                  Navigator.push(
-                                    context,
-                                    new MaterialPageRoute(
-                                        builder: (context) => new CartPage()),
-                                  );
-                                }
-                              },
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(16),
+                                  bottomRight: Radius.circular(16))),
+                          child: Center(
+                              child: Text(
+                            "Adding...",
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
                             ),
-                          ),
+                          )),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                              height: 60,
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                height: 60,
+                                width:
+                                    MediaQuery.of(context).size.width / 2 - 12,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(16.0),
+                                  ),
+                                  child: RaisedButton(
+                                    child: new Text("Negotiate"),
+                                    color: Colors.orangeAccent,
+                                    onPressed: () async {
+                                      if (quantity >= product.productMinStock) {
+                                        Navigator.push(
+                                          context,
+                                          new MaterialPageRoute(
+                                              builder: (context) =>
+                                                  new NegotiatePage(
+                                                      product: product)),
+                                        );
+                                      } else {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title:
+                                                  new Text("Can't Negotiate"),
+                                              content: new Text(
+                                                "Purchase at least " +
+                                                    product.productMinStock
+                                                        .toString() +
+                                                    " quantity to enter the negotitation",
+                                                style: new TextStyle(
+                                                    fontFamily: "Subtitle"),
+                                              ),
+                                              actions: <Widget>[
+                                                new FlatButton(
+                                                  child: new Text("Close"),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 60,
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                height: 60,
+                                width:
+                                    MediaQuery.of(context).size.width / 2 - 12,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(16)),
+                                  child: RaisedButton(
+                                    child: new Text("Add to Cart"),
+                                    color: Theme.of(context).accentColor,
+                                    onPressed: () async {
+                                      DocumentSnapshot user = await Firestore
+                                          .instance
+                                          .collection('users')
+                                          .document(userId)
+                                          .get();
+
+                                      int cart_items = user['cart_items'];
+                                      int cart_price = user['cart_total_price'];
+
+                                      bool alreadyPresentInCart = false;
+                                      bool sameSeller = true;
+                                      for (var i = 0; i < cart_items; i++) {
+                                        DocumentSnapshot cartData =
+                                            await Firestore.instance
+                                                .collection('users')
+                                                .document(userId)
+                                                .collection('cart')
+                                                .document(i.toString())
+                                                .get();
+
+                                        Product cartProduct = Product.fromJson(
+                                            cartData['product_data']);
+
+                                        if (cartProduct.productImage ==
+                                            product.productImage) {
+                                          alreadyPresentInCart = true;
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: new Text(
+                                                      "Product Already in Cart"),
+                                                  content: new Text(
+                                                    "Empty the cart and then add the product again.",
+                                                    style: new TextStyle(
+                                                        fontFamily: "Subtitle"),
+                                                  ),
+                                                  actions: <Widget>[
+                                                    new FlatButton(
+                                                      child: new Text("Close"),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                          break;
+                                        }
+
+                                        if (cartProduct.productSellerName !=
+                                            product.productSellerName) {
+                                          sameSeller = false;
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: new Text(
+                                                      "Can't add to cart"),
+                                                  content: new Text(
+                                                    "You cannot add two products from two different sellers. ",
+                                                    style: new TextStyle(
+                                                        fontFamily: "Subtitle"),
+                                                  ),
+                                                  actions: <Widget>[
+                                                    new FlatButton(
+                                                      child: new Text("Close"),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                          break;
+                                        }
+                                      }
+
+                                      if (!alreadyPresentInCart && sameSeller) {
+                                        setState(() {
+                                          addToCart = true;
+                                        });
+
+                                        int totalPrice = quantity *
+                                            (product.productOffer
+                                                ? product.productOfferPrice
+                                                : product.productPrice);
+
+                                        Map<String, dynamic> productData =
+                                            new HashMap();
+                                        productData['product_data'] =
+                                            product.toJson();
+                                        productData['product_price'] =
+                                            product.productOffer
+                                                ? product.productOfferPrice
+                                                : product.productPrice;
+                                        productData['product_quantity'] =
+                                            quantity;
+                                        productData['product_total_price'] =
+                                            totalPrice;
+
+                                        print(cart_items);
+                                        print(cart_price);
+
+                                        cart_items++;
+                                        cart_price += totalPrice;
+
+                                        await Firestore.instance
+                                            .collection('users')
+                                            .document(userId)
+                                            .collection('cart')
+                                            .document(
+                                                (cart_items - 1).toString())
+                                            .setData(productData);
+
+                                        await Firestore.instance
+                                            .collection('users')
+                                            .document(userId)
+                                            .updateData({
+                                          'cart_items': cart_items,
+                                          'cart_total_price': cart_price,
+                                        });
+
+                                        setState(() {
+                                          addToCart = false;
+                                        });
+
+                                        Navigator.push(
+                                          context,
+                                          new MaterialPageRoute(
+                                              builder: (context) =>
+                                                  new CartPage()),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ]),
           ),
+        ),
+        Padding(
+          child: new Card(
+            child: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text("You might also like",
+                        style: new TextStyle(fontSize: 20)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: Firestore.instance
+                          .collection('products')
+                          .where('product_category_name',
+                              isEqualTo: product.productCategoryName)
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasError)
+                          return new Text('Error: ${snapshot.error}');
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return new Center(child: new Text("Loading..."));
+                          default:
+                            if (snapshot.data.documents.length == 0 || snapshot.data.documents.length == 1) {
+                              return new Center(
+                                  child: new Text("No Related Products."));
+                            } else {
+                              return new Column(
+                                children: snapshot.data.documents
+                                    .map((DocumentSnapshot document) {
+                                  Product product =
+                                      Product.fromDocument(document);
+                                  if (product.productName== widget.product.productName) {
+                                    return Container();
+                                  } else {
+                                    return buildSimilarProdictListTile(
+                                        context, document);
+                                  }
+                                }).toList(),
+                              );
+                            }
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(16.0)),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         )
       ],
     );
@@ -848,4 +943,168 @@ class _ProductPageState extends State<ProductPage>
               getToolbar,
             ])));
   }
+}
+
+Widget buildSimilarProdictListTile(
+    BuildContext context, DocumentSnapshot document) {
+  Product product = Product.fromDocument(document);
+  bool offer = product.productOffer;
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProductPage(product: product),
+        ),
+      );
+    },
+    child: Container(
+      height: 120,
+      child: Card(
+        elevation: 16,
+        shape: new RoundedRectangleBorder(
+          borderRadius: new BorderRadius.circular(16.0),
+        ),
+        child: new Container(
+          child: new Row(
+            // mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        child: new Text(
+                          product.productName,
+                          style: new TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 16.0),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: new Text(
+                          product.productDescShort,
+                          style:
+                              new TextStyle(color: Colors.grey, fontSize: 12.0),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Row(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 8.0,
+                              ),
+                              child: new Text(
+                                "Seller: ",
+                                style: new TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12.0),
+                              ),
+                            ),
+                            new Text(
+                              product.productSellerName.toString(),
+                              style: new TextStyle(fontSize: 12.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        child: Row(
+                          children: <Widget>[
+                            offer
+                                ? new Text(
+                                    "₹" + product.productOfferPrice.toString(),
+                                    style: new TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22.0),
+                                  )
+                                : new Text(
+                                    "₹" + product.productPrice.toString(),
+                                    style: new TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22.0),
+                                  ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 2.0),
+                              child: offer
+                                  ? new Text(
+                                      product.productPrice.toString(),
+                                      style: new TextStyle(
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                          color: Colors.blueGrey,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12.0),
+                                    )
+                                  : new Container(),
+                            ),
+                            new Padding(
+                              padding:
+                                  new EdgeInsets.symmetric(horizontal: 2.0),
+                            ),
+                            offer
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                    child: Container(
+                                      color: Colors.green,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: new Text(
+                                          ((product.productPrice -
+                                                          product
+                                                              .productOfferPrice) /
+                                                      product.productPrice *
+                                                      100)
+                                                  .round()
+                                                  .toString() +
+                                              "% off",
+                                          softWrap: true,
+                                          style: new TextStyle(
+                                              fontSize: 12.0,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700),
+                                          maxLines: 2,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : new Container(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              new Expanded(
+                child: Container(),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(16.0),
+                    topRight: new Radius.circular(16.0)),
+                child: new Image.network(
+                  product.productImage,
+                  width: 170,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
