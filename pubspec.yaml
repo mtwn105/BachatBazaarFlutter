@@ -32,15 +32,7 @@ dependencies:
   flutter_webview_plugin: 
   flutter_custom_tabs: "^0.6.0"
   progress_hud: ^1.1.0
-
-
-
-
-
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+  modal_progress_hud: ^0.1.3
   cupertino_icons: ^0.1.2
 
 dev_dependencies:
