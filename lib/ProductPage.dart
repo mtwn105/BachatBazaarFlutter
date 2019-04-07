@@ -158,6 +158,8 @@ class _ProductPageState extends State<ProductPage>
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
     var getBackground = new Container(
         child: new Image.network(
       product.productImage,
@@ -562,13 +564,13 @@ class _ProductPageState extends State<ProductPage>
                           decoration: new BoxDecoration(
                               color: Colors.green,
                               borderRadius: BorderRadius.circular(16)),
-                          height: 30,
+                          height: size.height*0.05,
                           child: new Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               SizedBox(
-                                height: 30,
+                                height: size.height*0.05,
                                 width: 40,
                                 child: new FlatButton(
                                   child: new Text(
@@ -594,8 +596,8 @@ class _ProductPageState extends State<ProductPage>
                                       borderRadius: BorderRadius.circular(16),
                                       child: Container(
                                         alignment: Alignment.center,
-                                        height: 30,
-                                        width: 30,
+                                        height: size.height*0.05,
+                                        width: size.height*0.05,
                                         color: Theme.of(context).primaryColor,
                                         child: new Text(
                                           quantity.toString(),
@@ -605,7 +607,7 @@ class _ProductPageState extends State<ProductPage>
                                         ),
                                       ))),
                               SizedBox(
-                                height: 30,
+                                height: size.height*0.05,
                                 width: 40,
                                 child: new FlatButton(
                                   child: new Text(
@@ -630,7 +632,7 @@ class _ProductPageState extends State<ProductPage>
                   ),
                   addToCart
                       ? new Container(
-                          height: 60,
+                          height: size.height*0.075,
                           decoration: BoxDecoration(
                               color: Theme.of(context).accentColor,
                               borderRadius: BorderRadius.only(
@@ -648,10 +650,10 @@ class _ProductPageState extends State<ProductPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Container(
-                              height: 60,
+                              height: size.height*0.075,
                               alignment: Alignment.center,
                               child: SizedBox(
-                                height: 60,
+                                height: size.height*0.075,
                                 width:
                                     MediaQuery.of(context).size.width / 2 - 12,
                                 child: ClipRRect(
@@ -703,10 +705,10 @@ class _ProductPageState extends State<ProductPage>
                               ),
                             ),
                             Container(
-                              height: 60,
+                              height: size.height*0.075,
                               alignment: Alignment.center,
                               child: SizedBox(
-                                height: 60,
+                                height: size.height*0.075,
                                 width:
                                     MediaQuery.of(context).size.width / 2 - 12,
                                 child: ClipRRect(
@@ -880,7 +882,7 @@ class _ProductPageState extends State<ProductPage>
                       stream: Firestore.instance
                           .collection('products')
                           .where('product_category_name',
-                              isEqualTo: product.productCategoryName)
+                              isEqualTo: product.productCategoryName).limit(4)
                           .snapshots(),
                       builder:
                           (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -890,7 +892,8 @@ class _ProductPageState extends State<ProductPage>
                           case ConnectionState.waiting:
                             return new Center(child: new Text("Loading..."));
                           default:
-                            if (snapshot.data.documents.length == 0 || snapshot.data.documents.length == 1) {
+                            if (snapshot.data.documents.length == 0 ||
+                                snapshot.data.documents.length == 1) {
                               return new Center(
                                   child: new Text("No Related Products."));
                             } else {
@@ -899,7 +902,8 @@ class _ProductPageState extends State<ProductPage>
                                     .map((DocumentSnapshot document) {
                                   Product product =
                                       Product.fromDocument(document);
-                                  if (product.productName== widget.product.productName) {
+                                  if (product.productName ==
+                                      widget.product.productName) {
                                     return Container();
                                   } else {
                                     return buildSimilarProdictListTile(
@@ -947,6 +951,9 @@ class _ProductPageState extends State<ProductPage>
 
 Widget buildSimilarProdictListTile(
     BuildContext context, DocumentSnapshot document) {
+
+
+  var size = MediaQuery.of(context).size;
   Product product = Product.fromDocument(document);
   bool offer = product.productOffer;
   return GestureDetector(
@@ -959,7 +966,7 @@ Widget buildSimilarProdictListTile(
       );
     },
     child: Container(
-      height: 120,
+      height: size.height*0.15,
       child: Card(
         elevation: 16,
         shape: new RoundedRectangleBorder(
@@ -1097,7 +1104,8 @@ Widget buildSimilarProdictListTile(
                     topRight: new Radius.circular(16.0)),
                 child: new Image.network(
                   product.productImage,
-                  width: 170,
+                  width: size.width*0.3,
+                  height: size.height*0.15,
                   fit: BoxFit.cover,
                 ),
               ),

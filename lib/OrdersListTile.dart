@@ -9,6 +9,9 @@ final FirebaseAuth auth = FirebaseAuth.instance;
 
 Widget buildOrdersListTile(BuildContext context, DocumentSnapshot document) {
 
+  var size = MediaQuery.of(context).size;
+
+
   DateTime order_date = document['order_date'];
   String formatted = formatDate(order_date, [dd, ' ',MM,' ',yyyy]);
 
@@ -30,7 +33,7 @@ Widget buildOrdersListTile(BuildContext context, DocumentSnapshot document) {
   }
 
   return Container(
-    height: 140,
+    height: size.height*0.17,
     child: Card(
       shape: new RoundedRectangleBorder(
         borderRadius: new BorderRadius.circular(16.0),

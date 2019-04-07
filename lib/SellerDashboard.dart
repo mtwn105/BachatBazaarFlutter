@@ -16,6 +16,9 @@ class SellerDashboard extends StatefulWidget {
 final FirebaseAuth auth = FirebaseAuth.instance;
 
 class _SellerDashboardState extends State<SellerDashboard> {
+
+
+
   List<charts.Series<OrdersInfo, int>> lastOrderPriceList = new List();
   List<OrdersInfo> orders = new List();
   List<charts.Series<OrderCategory, String>> categoryOrdersList = new List();
@@ -233,6 +236,10 @@ class _SellerDashboardState extends State<SellerDashboard> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    var size = MediaQuery.of(context).size;
+
     return Scaffold(
         drawer: Drawer(
           child: Column(
@@ -284,7 +291,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
             children: <Widget>[
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                 child: Material(
                     elevation: 14.0,
                     borderRadius: BorderRadius.circular(12.0),
@@ -322,8 +329,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
                                 new ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   child: new Container(
-                                    height: 60,
-                                    width: 60,
+                                    height: size.height*0.07,
+                                    width: size.height*0.07,
                                     color: Theme.of(context).primaryColor,
                                     child: new Center(
                                       child: new Icon(
@@ -336,7 +343,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               ],
                             ),
                           ),
-                          height: 100,
+                          height: size.height*0.12,
                         ))),
               ),
               SizedBox(
@@ -344,7 +351,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                 child: Material(
                     elevation: 14.0,
                     borderRadius: BorderRadius.circular(12.0),
@@ -382,8 +389,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
                                 new ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   child: new Container(
-                                    height: 60,
-                                    width: 60,
+                                    height:size.height*0.07,
+                                    width:size.height*0.07,
                                     color: Theme.of(context).primaryColor,
                                     child: new Center(
                                       child: new Icon(
@@ -396,7 +403,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               ],
                             ),
                           ),
-                          height: 100,
+                          height: size.height*0.12,
                         ))),
               ),
               SizedBox(
@@ -404,7 +411,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                 child: Material(
                     elevation: 14.0,
                     borderRadius: BorderRadius.circular(12.0),
@@ -442,8 +449,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
                                 new ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   child: new Container(
-                                    height: 60,
-                                    width: 60,
+                                    height:size.height*0.07,
+                                    width: size.height*0.07,
                                     color: Theme.of(context).primaryColor,
                                     child: new Center(
                                       child: new Icon(
@@ -456,7 +463,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               ],
                             ),
                           ),
-                          height: 100,
+                          height: size.height*0.12,
                         ))),
               ),
               SizedBox(
@@ -464,7 +471,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                 child: Material(
                     elevation: 14.0,
                     borderRadius: BorderRadius.circular(12.0),
@@ -486,7 +493,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               children: <Widget>[
                                 Text("Last 10 Orders"),
                                 new Container(
-                                    height: 150.0,
+                                    height: size.height*0.2,
                                     child: charts.LineChart(
                                       lastOrderPriceList,
                                       animationDuration:
@@ -516,7 +523,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               ],
                             ),
                           ),
-                          height: 200,
+                          height: size.height*0.25,
                         ))),
               ),
               SizedBox(
@@ -524,7 +531,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                 child: Material(
                     elevation: 14.0,
                     borderRadius: BorderRadius.circular(12.0),
@@ -562,8 +569,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
                                 new ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   child: new Container(
-                                    height: 60,
-                                    width: 60,
+                                    height: size.height*0.07,
+                                    width: size.height*0.07,
                                     color: Theme.of(context).primaryColor,
                                     child: new Center(
                                       child: new Icon(
@@ -576,7 +583,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               ],
                             ),
                           ),
-                          height: 100,
+                          height:size.height*0.12,
                         ))),
               ),
               SizedBox(
@@ -584,7 +591,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                 child: Material(
                     elevation: 14.0,
                     borderRadius: BorderRadius.circular(12.0),
@@ -606,7 +613,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               children: <Widget>[
                                 Text("Products Sold by Category"),
                                 new Container(
-                                    height: 150.0,
+                                    height: size.height*0.2,
                                     child: charts.BarChart(
                                       categoryOrdersList,
                                       animate: true,
@@ -615,7 +622,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
                               ],
                             ),
                           ),
-                          height: 200,
+                          height: size.height*0.25,
                         ))),
               ),
             ],

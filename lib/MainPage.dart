@@ -69,6 +69,10 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+
+var size = MediaQuery.of(context).size;
+
+
     TextStyle style = TextStyle(
         color: Theme.of(context).primaryColor,
         fontSize: 14,
@@ -179,7 +183,7 @@ class _MainPageState extends State<MainPage> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Container(
-              height: 275,
+              height: size.height*0.35,
               child: StreamBuilder<QuerySnapshot>(
                 stream: Firestore.instance
                     .collection('products')
@@ -231,7 +235,7 @@ class _MainPageState extends State<MainPage> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Container(
-              height: 275,
+              height: size.height*0.34,
               child: StreamBuilder<QuerySnapshot>(
                 stream: Firestore.instance
                     .collection('products')
@@ -276,7 +280,7 @@ class _MainPageState extends State<MainPage> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: SizedBox(
-              height: 275,
+              height:size.height*0.34,
               child: StreamBuilder<QuerySnapshot>(
                 stream: Firestore.instance
                     .collection('products')
@@ -321,7 +325,7 @@ class _MainPageState extends State<MainPage> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: SizedBox(
-              height: 275,
+              height: size.height*0.34,
               child: StreamBuilder<QuerySnapshot>(
                 stream: Firestore.instance
                     .collection('products')
@@ -438,6 +442,7 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildListTile(BuildContext context, DocumentSnapshot document) {
     Product product = Product.fromDocument(document);
+var size = MediaQuery.of(context).size;
 
     bool offer = product.productOffer;
     //Rreturn tempWidget();
@@ -452,12 +457,11 @@ class _MainPageState extends State<MainPage> {
       },
       child: Container(
         margin: EdgeInsets.all(8),
-        height: 300,
-        width: 175,
+        width: size.width*0.43,
         decoration: new BoxDecoration(
           color: Colors.white,
           shape: BoxShape.rectangle,
-          borderRadius: new BorderRadius.circular(8.0),
+          borderRadius: new BorderRadius.circular(16.0),
           boxShadow: <BoxShadow>[
             new BoxShadow(
               color: Colors.black12,
@@ -467,7 +471,7 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
         child: new Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             ClipRRect(
