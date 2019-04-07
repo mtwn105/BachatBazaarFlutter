@@ -60,13 +60,13 @@ class _AllProductsPageState extends State<AllProductsPage> {
               case ConnectionState.waiting:
                 return new Center(child: new Text("Loading..."));
               default:
-                return new GridView(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, childAspectRatio: 0.6),
+                return new GridView.count(
+                
                   children:
                       snapshot.data.documents.map((DocumentSnapshot document) {
                     return buildListTile(context, document);
-                  }).toList(),
+                  }).toList(), crossAxisCount: 2,
+                  childAspectRatio: 0.6,
                 );
             }
           },

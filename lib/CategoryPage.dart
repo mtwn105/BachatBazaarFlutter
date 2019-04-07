@@ -61,9 +61,9 @@ class _CategoryPageState extends State<CategoryPage> {
                       child: new Text("No Products Available."),
                     );
                   } else {
-                    return new GridView(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, childAspectRatio: 0.7),
+                    return new GridView.count(
+                  
+                          crossAxisCount: 2, childAspectRatio: 0.675,
                       children: snapshot.data.documents
                           .map((DocumentSnapshot document) {
                         return buildListTile(context, document);
@@ -83,6 +83,7 @@ Widget buildListTile(BuildContext context, DocumentSnapshot document) {
   Product product = Product.fromDocument(document);
 
   bool offer = product.productOffer;
+var size = MediaQuery.of(context).size;
 
   return GestureDetector(
     onTap: () {
@@ -100,7 +101,7 @@ Widget buildListTile(BuildContext context, DocumentSnapshot document) {
         ),
         child: new Container(
           child: new Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               ClipRRect(
@@ -109,7 +110,7 @@ Widget buildListTile(BuildContext context, DocumentSnapshot document) {
                     topRight: Radius.circular(16.0)),
                 child: new Image.network(
                   product.productImage,
-                  height: 150,
+                  height:  size.height*0.2,
                   fit: BoxFit.cover,
                 ),
               ),

@@ -31,6 +31,8 @@ class _WishlistPageState extends State<WishlistPage> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
         appBar: new AppBar(
           title: new Text("Wishlist"),
@@ -71,6 +73,7 @@ Widget buildCartListTile(BuildContext context, DocumentSnapshot document) {
 
   Product product = Product.fromDocument(document);
 
+var size = MediaQuery.of(context).size;
 
   
   bool offer = product.productOffer;
@@ -85,7 +88,7 @@ Widget buildCartListTile(BuildContext context, DocumentSnapshot document) {
         );
     },
       child: Container(
-      height: 120,
+      height: size.height*0.15,
       child: Card(
         shape: new RoundedRectangleBorder(
           borderRadius: new BorderRadius.circular(16.0),
@@ -219,7 +222,9 @@ Widget buildCartListTile(BuildContext context, DocumentSnapshot document) {
                     topRight: new Radius.circular(16.0)),
                 child: new Image.network(
                   product.productImage,
-                  width: 170,
+                        height: size.height*0.15,
+
+                  width: size.width*0.3,
                   fit: BoxFit.cover,
                 ),
               ),

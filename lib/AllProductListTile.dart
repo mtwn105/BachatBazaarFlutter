@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 Widget buildListTile(BuildContext context, DocumentSnapshot document) {
   Product product = Product.fromDocument(document);
+  var size = MediaQuery.of(context).size;
+
 
   bool offer = product.productOffer;
 
@@ -24,7 +26,7 @@ Widget buildListTile(BuildContext context, DocumentSnapshot document) {
         ),
         child: new Container(
           child: new Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               ClipRRect(
@@ -33,7 +35,7 @@ Widget buildListTile(BuildContext context, DocumentSnapshot document) {
                     topRight: Radius.circular(16.0)),
                 child: new Image.network(
                   product.productImage,
-                  height: 150,
+                  height: size.height*0.2,
                   fit: BoxFit.cover,
                 ),
               ),

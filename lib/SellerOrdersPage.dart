@@ -94,6 +94,8 @@ class _SellerOrdersPageState extends State<SellerOrdersPage> {
 
   Widget buildSellersOrdersListTile(
       BuildContext context, DocumentSnapshot document) {
+        var size = MediaQuery.of(context).size;
+
     DateTime order_date = document['order_date'];
     String formatted = formatDate(order_date, [dd, ' ', MM, ' ', yyyy]);
 
@@ -131,7 +133,7 @@ class _SellerOrdersPageState extends State<SellerOrdersPage> {
             .updateData({'order_status': 'Processing'});
       },
       child: Container(
-        height: 140,
+        height:  size.height*0.17,
         child: Card(
           shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(16.0),
