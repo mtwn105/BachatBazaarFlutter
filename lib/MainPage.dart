@@ -3,6 +3,7 @@ import 'package:bachatbazaar/CategoryPage.dart';
 import 'package:bachatbazaar/LoginPage.dart';
 import 'package:bachatbazaar/OrdersPage.dart';
 import 'package:bachatbazaar/ProductPage.dart';
+import 'package:bachatbazaar/SearchPage.dart';
 import 'package:bachatbazaar/WishlistPage.dart';
 import 'package:bachatbazaar/model/Product.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,7 +72,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
 
 var size = MediaQuery.of(context).size;
-
+Widget _appBarTitle = new Text( 'Bachat Bazaar' );
 
     TextStyle style = TextStyle(
         color: Theme.of(context).primaryColor,
@@ -81,9 +82,22 @@ var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: new AppBar(
         centerTitle: true,
-        title: new Text("Bachat Bazaar"),
+        title: _appBarTitle,
         actions: <Widget>[
+            IconButton(
+            icon: Icon(
+              FontAwesomeIcons.search,
+              size: 16,
+            ),
+            onPressed: () {
+          Navigator.push(
+                context,
+                new MaterialPageRoute(builder: (context) => new SearchPage()),
+              );
+            },
+          ),
           IconButton(
+          
             icon: Icon(
               FontAwesomeIcons.shoppingCart,
               size: 16,
@@ -95,6 +109,7 @@ var size = MediaQuery.of(context).size;
               );
             },
           ),
+
         ],
       ),
       body: new ListView(
