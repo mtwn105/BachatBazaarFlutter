@@ -26,11 +26,12 @@ class _SearchPageState extends State<SearchPage> {
       body: new MaterialSearch<String>(
         placeholder: "Search Products",
 
-        results: productNameList
-            .map((name) => new MaterialSearchResult<String>(
-                  value: name, //The value must be of type <String>
-                  text: name, //String that will be show in the list
-                  icon: FontAwesomeIcons.box,
+        results: productList
+            .map((product) => new MaterialSearchResult<String>(
+                  value: product.productName, //The value must be of type <String>
+                  text: product.productName, //String that will be show in the list
+                  url: product.productImage,
+                  shortDesc: product.productDescShort,
                 ))
             .toList(),
 
