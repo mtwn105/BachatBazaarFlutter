@@ -8,12 +8,11 @@ import 'package:date_format/date_format.dart';
 final FirebaseAuth auth = FirebaseAuth.instance;
 
 Widget buildOrdersListTile(BuildContext context, DocumentSnapshot document) {
-
   var size = MediaQuery.of(context).size;
-
-
-  DateTime order_date = document['order_date'];
-  String formatted = formatDate(order_date, [dd, ' ',MM,' ',yyyy]);
+  Timestamp t = document['order_date'];
+  DateTime order_date =
+      new DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch);
+  String formatted = formatDate(order_date, [dd, ' ', MM, ' ', yyyy]);
 
   String order_status = document['order_status'];
   Color color;
@@ -33,7 +32,7 @@ Widget buildOrdersListTile(BuildContext context, DocumentSnapshot document) {
   }
 
   return Container(
-    height: size.height*0.17,
+    height: size.height * 0.17,
     child: Card(
       shape: new RoundedRectangleBorder(
         borderRadius: new BorderRadius.circular(16.0),
@@ -69,12 +68,13 @@ Widget buildOrdersListTile(BuildContext context, DocumentSnapshot document) {
                             ),
                             new Text(
                               document['order_id'].toString(),
-                              style: new TextStyle(fontSize: 16.0,fontFamily: "Subtitle"),
+                              style: new TextStyle(
+                                  fontSize: 16.0, fontFamily: "Subtitle"),
                             ),
                           ],
                         ),
                       ),
-                       Padding(
+                      Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Row(
                           children: <Widget>[
@@ -91,7 +91,8 @@ Widget buildOrdersListTile(BuildContext context, DocumentSnapshot document) {
                             ),
                             new Text(
                               formatted,
-                              style: new TextStyle(fontSize: 16.0,fontFamily: "Subtitle"),
+                              style: new TextStyle(
+                                  fontSize: 16.0, fontFamily: "Subtitle"),
                             ),
                           ],
                         ),
@@ -113,12 +114,12 @@ Widget buildOrdersListTile(BuildContext context, DocumentSnapshot document) {
                             ),
                             new Text(
                               document['order_items'].toString(),
-                              style: new TextStyle(fontSize: 16.0,fontFamily: "Subtitle"),
+                              style: new TextStyle(
+                                  fontSize: 16.0, fontFamily: "Subtitle"),
                             ),
                           ],
                         ),
                       ),
-                      
                       new Expanded(
                         child: Container(),
                       ),
