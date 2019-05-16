@@ -11,11 +11,15 @@ import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:http/http.dart' as http;
 import 'package:paytm/paytm.dart';
 
+import 'OrderConfirmPage.dart';
+
 class BuyPage extends StatefulWidget {
   final int cart_total_price;
   final int cart_items;
+
   const BuyPage({Key key, this.cart_items, this.cart_total_price})
       : super(key: key);
+
   @override
   _BuyPageState createState() =>
       _BuyPageState(this.cart_items, this.cart_total_price);
@@ -30,6 +34,7 @@ class _BuyPageState extends State<BuyPage> {
   final int cart_items;
 
   _BuyPageState(this.cart_items, this.cart_total_price);
+
   final pinCodeController = TextEditingController();
   final addressLine1Controller = TextEditingController();
   final addressLine2Controller = TextEditingController();
@@ -193,23 +198,22 @@ class _BuyPageState extends State<BuyPage> {
       ),
       body: Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 0),
-            child: new Column(
-              children: <Widget>[
-                pinCodeField,
-                addressLine1Field,
-                addressLine2Field,
-                cityField,
-                stateField,
-                mobileField,
-              ],
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new ListView(
+                children: <Widget>[
+                  pinCodeField,
+                  addressLine1Field,
+                  addressLine2Field,
+                  cityField,
+                  stateField,
+                  mobileField,
+                ],
+              ),
             ),
           ),
-          Expanded(
-            child: Container(),
-          ),
-          SizedBox(
+         SizedBox(
             width: double.infinity,
             height: 60,
             child: new MaterialButton(
@@ -238,7 +242,6 @@ class _BuyPageState extends State<BuyPage> {
                     },
                   );
                 } else {
-                  // payWithPaytm(context);
                   initiatePayment().then((status) {
                     if (status == "SUCCESS") {
                       placeOrder();
@@ -246,14 +249,15 @@ class _BuyPageState extends State<BuyPage> {
                       print("PAYMENT FAILED");
                     }
                   });
+
                 }
               },
               color: Theme.of(context).accentColor,
-              child: new Text("Pay Using Google Pay ",
+              child: new Text("Proceed",
                   style: new TextStyle(color: Theme.of(context).primaryColor)),
             ),
           ),
-        ],
+       ],
       ),
     );
   }
