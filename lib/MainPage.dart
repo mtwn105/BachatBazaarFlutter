@@ -19,8 +19,13 @@ class MainPage extends StatefulWidget {
 
 final FirebaseAuth auth = FirebaseAuth.instance;
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage>
+    with SingleTickerProviderStateMixin {
   List categories = ["Food", "Clothes", "Medical", "Handcraft", "Cosmetics"];
+  bool isOpen = false;
+
+  AnimationController _controller;
+  Animation<double> _scaleAnimation;
 
   List<Color> categoryColor = [
     Colors.redAccent,
@@ -36,6 +41,7 @@ class _MainPageState extends State<MainPage> {
     FontAwesomeIcons.puzzlePiece,
     FontAwesomeIcons.mitten
   ];
+
   String getName(FirebaseUser user) {
     if (user != null) {
       return user.displayName;
@@ -63,16 +69,33 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     userDetails();
-    CollectionReference productsList =
-        Firestore.instance.collection('products');
+    _controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _scaleAnimation = Tween<double>(begin: 1, end: 0.6).animate(_controller);
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
-var size = MediaQuery.of(context).size;
-Widget _appBarTitle = new Text( 'Bachat Bazaar' );
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
+    Widget _appBarTitle = new Text(
+      'SHOP NOW'.toUpperCase(),
+      style: TextStyle(
+        letterSpacing: 1.4,
+        fontSize: 20.0,
+        color: Theme.of(context).primaryColor,
+      ),
+    );
+
+    Color primaryColor = Theme.of(context).primaryColor;
+    Color bgColor = new Color(0xfffafafA);
 
     TextStyle style = TextStyle(
         color: Theme.of(context).primaryColor,
@@ -80,384 +103,575 @@ Widget _appBarTitle = new Text( 'Bachat Bazaar' );
         fontWeight: FontWeight.bold);
 
     return Scaffold(
-      appBar: new AppBar(
-        centerTitle: true,
-        title: _appBarTitle,
-        actions: <Widget>[
-            IconButton(
-            icon: Icon(
-              FontAwesomeIcons.search,
-              size: 16,
-            ),
-            onPressed: () {
-          Navigator.push(
-                context,
-                new MaterialPageRoute(builder: (context) => new SearchPage()),
-              );
-            },
-          ),
-          IconButton(
-          
-            icon: Icon(
-              FontAwesomeIcons.shoppingCart,
-              size: 16,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                new MaterialPageRoute(builder: (context) => new CartPage()),
-              );
-            },
-          ),
-
-        ],
-      ),
-      body: new ListView(
-        // mainAxisAlignment: MainAxisAlignment.start,
-        //  crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: new Text(
-              "Categories",
-              style: style,
+          Container(
+            width: double.infinity,
+            color: primaryColor,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 48.0, 0, 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        CircleAvatar(
+                          radius: size.height * 0.06,
+                          backgroundColor: Theme.of(context).accentColor,
+                          child: Text(
+                            userName[0],
+                            style: TextStyle(fontSize: 36.0),
+                          ),
+                        ),
+                        SizedBox(height: 20.0),
+                        Text(
+                          userName,
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Theme.of(context).accentColor),
+                        ),
+                        SizedBox(height: 5.0),
+                        Text(
+                          email,
+                          style: TextStyle(fontSize: 14, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 40.0),
+                  ListTile(
+                    title: Text(
+                      "Shop Now",
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.dashboard,
+                      color: Colors.white,
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Wishlist",
+                      style: TextStyle(fontSize: 14, color: Colors.white54),
+                    ),
+                    leading: Icon(
+                      Icons.favorite,
+                      color: Colors.white54,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        isOpen = !isOpen;
+                        _controller.reverse();
+                      });
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new WishlistPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Your Cart",
+                      style: TextStyle(fontSize: 14, color: Colors.white54),
+                    ),
+                    leading: Icon(
+                      Icons.shopping_cart,
+                      color: Colors.white54,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        isOpen = !isOpen;
+                        _controller.reverse();
+                      });
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new CartPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Your Orders",
+                      style: TextStyle(fontSize: 14, color: Colors.white54),
+                    ),
+                    leading: Icon(
+                      Icons.stars,
+                      color: Colors.white54,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        isOpen = !isOpen;
+                        _controller.reverse();
+                      });
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new OrdersPage()),
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Log Out",
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                    leading: Icon(
+                      Icons.exit_to_app,
+                      color: Colors.white,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        isOpen = !isOpen;
+                        _controller.reverse();
+                      });
+                      auth.signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new LoginPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                height: 100,
-                width: 100,
-                child: new ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CategoryPage(
-                                    category: categories[index],
-                                    categoryColor: categoryColor[index],
-                                  ),
+          AnimatedPositioned(
+            duration: Duration(microseconds: 500),
+            top: isOpen ? 0.02 * size.height : 0,
+            bottom: isOpen ? 0.02 * size.height : 0,
+            left: isOpen ? 0.4 * size.width : 0,
+            right: isOpen ? -0.6 * size.width : 0,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: InkWell(
+                onTap: () {
+                  if (isOpen) {
+                    setState(() {
+                      isOpen = !isOpen;
+                      _controller.reverse();
+                    });
+                  }
+                },
+                child: Material(
+                  borderRadius: BorderRadius.circular(16.0),
+                  elevation: 8.0,
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        margin: const EdgeInsets.only(top: 32),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(FontAwesomeIcons.bars,
+                                  color: primaryColor, size: 16.0),
+                              onPressed: () {
+                                setState(() {
+                                  if (!isOpen) {
+                                    _controller.forward();
+                                  } else {
+                                    _controller.reverse();
+                                  }
+                                  isOpen = !isOpen;
+                                });
+                              },
                             ),
-                          );
-                        },
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                          decoration: new BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          child: InkWell(
-                            child: new Material(
-                              shape: new RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              child: new Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      new Icon(
-                                        categoryIcons[index],
-                                        size: 18,
-                                        color: categoryColor[index],
-                                      ),
-                                      new SizedBox(
-                                        height: 10,
-                                      ),
-                                      new Text(
-                                        categories[index],
-                                        style: new TextStyle(fontSize: 12),
-                                      )
-                                    ],
+                            Container(
+                                margin: EdgeInsets.only(left: 16.0),
+                                alignment: Alignment.center,
+                                child: _appBarTitle),
+                            Row(
+                              children: <Widget>[
+                                IconButton(
+                                  icon: Icon(
+                                    FontAwesomeIcons.search,
+                                    size: 16,
                                   ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      new MaterialPageRoute(
+                                          builder: (context) =>
+                                              new SearchPage()),
+                                    );
+                                  },
                                 ),
-                              ),
-                              elevation: 4.0,
+                                IconButton(
+                                  icon: Icon(
+                                    FontAwesomeIcons.shoppingCart,
+                                    size: 16,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      new MaterialPageRoute(
+                                          builder: (context) => new CartPage()),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                ),
-              )),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: new Text(
-              "Featured",
-              style: style,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-            child: Container(
-              height: size.height*0.35,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection('products')
-                    .where('product_offer', isEqualTo: true)
-                    .limit(5)
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 5,
-                          itemBuilder: (BuildContext context, int index) {
-                            return loadingWidget();
-                          },
-                        ),
-                      );
-
-                    default:
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      Expanded(
                         child: new ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: snapshot.data.documents
-                              .map((DocumentSnapshot document) {
-                            return _buildListTile(context, document);
-                          }).toList(),
+                          // mainAxisAlignment: MainAxisAlignment.start,
+                          //  crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16.0, 0, 16, 16),
+                              child: new Text(
+                                "Categories",
+                                style: style,
+                              ),
+                            ),
+                            Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  child: new ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: 5,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CategoryPage(
+                                                      category:
+                                                          categories[index],
+                                                      categoryColor:
+                                                          categoryColor[index],
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 100,
+                                            width: 100,
+                                            decoration: new BoxDecoration(
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: InkWell(
+                                              child: new Material(
+                                                shape:
+                                                    new RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                ),
+                                                child: new Center(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: <Widget>[
+                                                        new Icon(
+                                                          categoryIcons[index],
+                                                          size: 18,
+                                                          color: categoryColor[
+                                                              index],
+                                                        ),
+                                                        new SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        new Text(
+                                                          categories[index],
+                                                          style: new TextStyle(
+                                                              fontSize: 12),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                elevation: 4.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                )),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: new Text(
+                                "Featured",
+                                style: style,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16.0, right: 16.0),
+                              child: Container(
+                                height: size.height * 0.4,
+                                child: StreamBuilder<QuerySnapshot>(
+                                  stream: Firestore.instance
+                                      .collection('products')
+                                      .where('product_offer', isEqualTo: true)
+                                      .limit(5)
+                                      .snapshots(),
+                                  builder: (context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                                    if (snapshot.hasError)
+                                      return new Text(
+                                          'Error: ${snapshot.error}');
+                                    switch (snapshot.connectionState) {
+                                      case ConnectionState.waiting:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: 5,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return loadingWidget();
+                                            },
+                                          ),
+                                        );
+
+                                      default:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: new ListView(
+                                            scrollDirection: Axis.horizontal,
+                                            children: snapshot.data.documents
+                                                .map((DocumentSnapshot
+                                                    document) {
+                                              return _buildListTile(
+                                                  context, document);
+                                            }).toList(),
+                                          ),
+                                        );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: new Text(
+                                "Food",
+                                style: TextStyle(
+                                    color: categoryColor[0],
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16.0, right: 16.0),
+                              child: Container(
+                                height: size.height * 0.4,
+                                child: StreamBuilder<QuerySnapshot>(
+                                  stream: Firestore.instance
+                                      .collection('products')
+                                      .where('product_category_name',
+                                          isEqualTo: 'Food')
+                                      .limit(5)
+                                      .snapshots(),
+                                  builder: (context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                                    if (snapshot.hasError)
+                                      return new Text(
+                                          'Error: ${snapshot.error}');
+                                    switch (snapshot.connectionState) {
+                                      case ConnectionState.waiting:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: 5,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return loadingWidget();
+                                            },
+                                          ),
+                                        );
+                                      default:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: new ListView(
+                                            scrollDirection: Axis.horizontal,
+                                            children: snapshot.data.documents
+                                                .map((DocumentSnapshot
+                                                    document) {
+                                              return _buildListTile(
+                                                  context, document);
+                                            }).toList(),
+                                          ),
+                                        );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: new Text(
+                                "Handcraft",
+                                style: TextStyle(
+                                    color: categoryColor[3],
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16.0, right: 16.0),
+                              child: SizedBox(
+                                height: size.height * 0.4,
+                                child: StreamBuilder<QuerySnapshot>(
+                                  stream: Firestore.instance
+                                      .collection('products')
+                                      .where('product_category_name',
+                                          isEqualTo: 'Handcraft')
+                                      .limit(5)
+                                      .snapshots(),
+                                  builder: (context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                                    if (snapshot.hasError)
+                                      return new Text(
+                                          'Error: ${snapshot.error}');
+                                    switch (snapshot.connectionState) {
+                                      case ConnectionState.waiting:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: 5,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return loadingWidget();
+                                            },
+                                          ),
+                                        );
+                                      default:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: new ListView(
+                                            scrollDirection: Axis.horizontal,
+                                            children: snapshot.data.documents
+                                                .map((DocumentSnapshot
+                                                    document) {
+                                              return _buildListTile(
+                                                  context, document);
+                                            }).toList(),
+                                          ),
+                                        );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: new Text(
+                                "Medical",
+                                style: TextStyle(
+                                    color: categoryColor[2],
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16.0, right: 16.0),
+                              child: SizedBox(
+                                height: size.height * 0.4,
+                                child: StreamBuilder<QuerySnapshot>(
+                                  stream: Firestore.instance
+                                      .collection('products')
+                                      .where('product_category_name',
+                                          isEqualTo: 'Medical')
+                                      .limit(5)
+                                      .snapshots(),
+                                  builder: (context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                                    if (snapshot.hasError)
+                                      return new Text(
+                                          'Error: ${snapshot.error}');
+                                    switch (snapshot.connectionState) {
+                                      case ConnectionState.waiting:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: 5,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return loadingWidget();
+                                            },
+                                          ),
+                                        );
+                                      default:
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: new ListView(
+                                            scrollDirection: Axis.horizontal,
+                                            children: snapshot.data.documents
+                                                .map((DocumentSnapshot
+                                                    document) {
+                                              return _buildListTile(
+                                                  context, document);
+                                            }).toList(),
+                                          ),
+                                        );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                  }
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: new Text(
-              "Food",
-              style: TextStyle(
-                  color: categoryColor[0],
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-            child: Container(
-              height: size.height*0.34,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection('products')
-                    .where('product_category_name', isEqualTo: 'Food')
-                    .limit(5)
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5,
-                        itemBuilder: (BuildContext context, int index) {
-                          return loadingWidget();
-                        },
-                      );
-                    default:
-                      return new ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: snapshot.data.documents
-                            .map((DocumentSnapshot document) {
-                          return _buildListTile(context, document);
-                        }).toList(),
-                      );
-                  }
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: new Text(
-              "Handcraft",
-              style: TextStyle(
-                  color: categoryColor[3],
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-            child: SizedBox(
-              height:size.height*0.34,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection('products')
-                    .where('product_category_name', isEqualTo: 'Handcraft')
-                    .limit(5)
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5,
-                        itemBuilder: (BuildContext context, int index) {
-                          return loadingWidget();
-                        },
-                      );
-                    default:
-                      return new ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: snapshot.data.documents
-                            .map((DocumentSnapshot document) {
-                          return _buildListTile(context, document);
-                        }).toList(),
-                      );
-                  }
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: new Text(
-              "Medical",
-              style: TextStyle(
-                  color: categoryColor[2],
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-            child: SizedBox(
-              height: size.height*0.34,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection('products')
-                    .where('product_category_name', isEqualTo: 'Medical')
-                    .limit(5)
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5,
-                        itemBuilder: (BuildContext context, int index) {
-                          return loadingWidget();
-                        },
-                      );
-                    default:
-                      return new ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: snapshot.data.documents
-                            .map((DocumentSnapshot document) {
-                          return _buildListTile(context, document);
-                        }).toList(),
-                      );
-                  }
-                },
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ],
-      ),
-      drawer: Drawer(
-        child: Column(
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text(userName),
-              accountEmail:
-                  Text(email, style: new TextStyle(fontFamily: "Subtitle")),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Theme.of(context).accentColor,
-                child: Text(
-                  userName[0],
-                  style: TextStyle(fontSize: 40.0),
-                ),
-              ),
-            ),
-            ListTile(
-              title: Text("Wishlist"),
-              leading: Icon(
-                Icons.favorite,
-                color: Theme.of(context).primaryColor,
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                      builder: (context) => new WishlistPage()),
-                );
-              },
-            ),
-            ListTile(
-              title: Text("Cart"),
-              leading: Icon(
-                Icons.shopping_basket,
-                color: Theme.of(context).primaryColor,
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  new MaterialPageRoute(builder: (context) => new CartPage()),
-                );
-              },
-            ),
-            ListTile(
-              title: Text("Orders"),
-              leading: Icon(
-                Icons.stars,
-                color: Theme.of(context).primaryColor,
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  new MaterialPageRoute(builder: (context) => new OrdersPage()),
-                );
-              },
-            ),
-            Expanded(
-              child: Container(),
-            ),
-            ListTile(
-              title: Text("Log out",
-                  style: new TextStyle(
-                    color: Theme.of(context).primaryColor,
-                  )),
-              leading: Icon(
-                Icons.exit_to_app,
-                color: Theme.of(context).primaryColor,
-              ),
-              onTap: () {
-                auth.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  new MaterialPageRoute(builder: (context) => new LoginPage()),
-                );
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
 
   Widget _buildListTile(BuildContext context, DocumentSnapshot document) {
     Product product = Product.fromDocument(document);
-var size = MediaQuery.of(context).size;
+    var size = MediaQuery.of(context).size;
 
     bool offer = product.productOffer;
     //Rreturn tempWidget();
@@ -472,7 +686,7 @@ var size = MediaQuery.of(context).size;
       },
       child: Container(
         margin: EdgeInsets.all(8),
-        width: size.width*0.43,
+        width: size.width * 0.45,
         decoration: new BoxDecoration(
           color: Colors.white,
           shape: BoxShape.rectangle,
@@ -495,7 +709,7 @@ var size = MediaQuery.of(context).size;
                   topRight: Radius.circular(16.0)),
               child: new Image.network(
                 product.productImage,
-                height: 150,
+                height: size.height * 0.23,
                 fit: BoxFit.cover,
               ),
             ),
@@ -504,6 +718,8 @@ var size = MediaQuery.of(context).size;
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: new Text(
                 product.productName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: new TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor,
