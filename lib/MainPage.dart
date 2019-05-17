@@ -270,55 +270,60 @@ class _MainPageState extends State<MainPage>
                     children: <Widget>[
                       Container(
                         margin: const EdgeInsets.only(top: 32),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Stack(
                           children: <Widget>[
-                            IconButton(
-                              icon: Icon(FontAwesomeIcons.bars,
-                                  color: primaryColor, size: 16.0),
-                              onPressed: () {
-                                setState(() {
-                                  if (!isOpen) {
-                                    _controller.forward();
-                                  } else {
-                                    _controller.reverse();
-                                  }
-                                  isOpen = !isOpen;
-                                });
-                              },
-                            ),
                             Container(
-                                margin: EdgeInsets.only(left: 16.0),
+                                margin: EdgeInsets.only(top: 14.0),
                                 alignment: Alignment.center,
                                 child: _appBarTitle),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 IconButton(
-                                  icon: Icon(
-                                    FontAwesomeIcons.search,
-                                    size: 16,
-                                  ),
+                                  icon: Icon(FontAwesomeIcons.bars,
+                                      color: primaryColor, size: 16.0),
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      new MaterialPageRoute(
-                                          builder: (context) =>
-                                              new SearchPage()),
-                                    );
+                                    setState(() {
+                                      if (!isOpen) {
+                                        _controller.forward();
+                                      } else {
+                                        _controller.reverse();
+                                      }
+                                      isOpen = !isOpen;
+                                    });
                                   },
                                 ),
-                                IconButton(
-                                  icon: Icon(
-                                    FontAwesomeIcons.shoppingCart,
-                                    size: 16,
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      new MaterialPageRoute(
-                                          builder: (context) => new CartPage()),
-                                    );
-                                  },
+                                Row(
+                                  children: <Widget>[
+                                    IconButton(
+                                      icon: Icon(
+                                        FontAwesomeIcons.search,
+                                        size: 16,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          new MaterialPageRoute(
+                                              builder: (context) =>
+                                                  new SearchPage()),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        FontAwesomeIcons.shoppingCart,
+                                        size: 16,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          new MaterialPageRoute(
+                                              builder: (context) =>
+                                                  new CartPage()),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

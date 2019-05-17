@@ -213,7 +213,7 @@ class _BuyPageState extends State<BuyPage> {
               ),
             ),
           ),
-         SizedBox(
+          SizedBox(
             width: double.infinity,
             height: 60,
             child: new MaterialButton(
@@ -249,15 +249,51 @@ class _BuyPageState extends State<BuyPage> {
                       print("PAYMENT FAILED");
                     }
                   });
-
                 }
               },
               color: Theme.of(context).accentColor,
-              child: new Text("Proceed",
+              child: new Text("Pay with Google Pay".toUpperCase(),
                   style: new TextStyle(color: Theme.of(context).primaryColor)),
             ),
           ),
-       ],
+          SizedBox(
+            width: double.infinity,
+            height: 60,
+            child: new MaterialButton(
+              onPressed: () async {
+                if (pinCodeController.text.isEmpty ||
+                    addressLine1Controller.text.isEmpty ||
+                    addressLine2Controller.text.isEmpty ||
+                    cityController.text.isEmpty ||
+                    stateController.text.isEmpty ||
+                    mobileController.text.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: new Text("Enter All Details"),
+                        content: new Text("Don't leave any field empty"),
+                        actions: <Widget>[
+                          new FlatButton(
+                            child: new Text("Close"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  placeOrder();
+                }
+              },
+              color: Colors.red,
+              child: new Text("Dummy Pay".toUpperCase(),
+                  style: new TextStyle(color: Colors.white)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -295,170 +331,157 @@ class _BuyPageState extends State<BuyPage> {
   }
 
   placeOrder() async {
-    if (pinCodeController.text.isEmpty ||
-        addressLine1Controller.text.isEmpty ||
-        addressLine2Controller.text.isEmpty ||
-        cityController.text.isEmpty ||
-        stateController.text.isEmpty ||
-        mobileController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: new Text("Enter All Details"),
-            content: new Text("Don't leave any field empty"),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      DocumentSnapshot seller = await Firestore.instance
+    //TEMP
+    final String rand1 = "${new Random().nextInt(100000)}";
+    final String rand2 = "${new Random().nextInt(100000)}";
+    final String rand3 = "${new Random().nextInt(100000)}";
+    final String rand4 = "${new Random().nextInt(100000)}";
+    orderId = rand1 + rand2 + rand3 + rand4;
+
+    DocumentSnapshot seller = await Firestore.instance
+        .collection('users')
+        .document(userId)
+        .collection('cart')
+        .document('0')
+        .get();
+
+    Product product = Product.fromJson(seller['product_data']);
+    String sellerName = product.productSellerName;
+    String sellerId = product.productSellerId;
+
+    List<Map<dynamic, dynamic>> products = new List();
+    List<int> productQuantity = new List();
+    List<int> productTotalPrice = new List();
+    List<String> deliveryUpdates = new List();
+    String productImage = "";
+    List<int> stocks = new List();
+
+    for (var i = 0; i < cart_items; i++) {
+      DocumentSnapshot document = await Firestore.instance
           .collection('users')
           .document(userId)
           .collection('cart')
-          .document('0')
+          .document(i.toString())
           .get();
 
-      Product product = Product.fromJson(seller['product_data']);
-      String sellerName = product.productSellerName;
-      String sellerId = product.productSellerId;
+      products.add(document['product_data']);
+      productQuantity.add(document['product_quantity']);
+      productTotalPrice.add(document['product_total_price']);
+      productImage = document['product_data']['product_image'];
+      stocks.add((document['product_data']['product_stock']));
+      stocks[i] -= document['product_quantity'];
 
-      List<Map<dynamic, dynamic>> products = new List();
-      List<int> product_quantity = new List();
-      List<int> product_total_price = new List();
-      List<String> delivery_updates = new List();
-      String product_image = "";
-      List<int> stocks = new List();
+      int productsCount = 0;
 
-      for (var i = 0; i < cart_items; i++) {
-        DocumentSnapshot document = await Firestore.instance
-            .collection('users')
-            .document(userId)
-            .collection('cart')
-            .document(i.toString())
-            .get();
+      await Firestore.instance
+          .collection('products')
+          .getDocuments()
+          .then((QuerySnapshot q) async {
+        productsCount = q.documents.length;
+        print(productsCount);
 
-        products.add(document['product_data']);
-        product_quantity.add(document['product_quantity']);
-        product_total_price.add(document['product_total_price']);
-        product_image = document['product_data']['product_image'];
-        stocks.add((document['product_data']['product_stock']));
-        stocks[i] -= document['product_quantity'];
+        for (var j = 0; j < productsCount; j++) {
+          DocumentSnapshot d = q.documents[j];
 
-        int products_count = 0;
-
-        await Firestore.instance
-            .collection('products')
-            .getDocuments()
-            .then((QuerySnapshot q) async {
-          products_count = q.documents.length;
-          print(products_count);
-
-          for (var j = 0; j < products_count; j++) {
-            DocumentSnapshot d = q.documents[j];
-
-            if ((product_image.compareTo(d['product_image'])) == 0) {
-              print("FOUND");
-              await Firestore.instance
-                  .collection('products')
-                  .document(d.documentID)
-                  .updateData({'product_stock': stocks[i]});
-            }
+          if ((productImage.compareTo(d['product_image'])) == 0) {
+            print("FOUND");
+            await Firestore.instance
+                .collection('products')
+                .document(d.documentID)
+                .updateData({'product_stock': stocks[i]});
           }
-        });
-      }
-      for (var i = 0; i < cart_items; i++) {
-        await Firestore.instance
-            .collection('users')
-            .document(userId)
-            .collection('cart')
-            .document(i.toString())
-            .delete();
-      }
-
-      await Firestore.instance.collection('users').document(userId).updateData({
-        'cart_items': 0,
-        'cart_total_price': 0,
+        }
       });
-
-      Firestore.instance
+    }
+    for (var i = 0; i < cart_items; i++) {
+      await Firestore.instance
           .collection('users')
           .document(userId)
-          .collection('orders')
-          .document(orderId)
-          .setData({
-        'order_id': orderId,
-        'order_date': DateTime.now(),
-        'order_delivery_updates': delivery_updates,
-        'order_user_id': userId,
-        'order_seller_id': sellerId,
-        'order_products': products,
-        'order_user_name': userName,
-        'order_seller_name': sellerName,
-        'order_items': cart_items,
-        'order_total_price': cart_total_price,
-        'order_address_line1': addressLine1Controller.text,
-        'order_address_line2': addressLine2Controller.text,
-        'order_pincode': pinCodeController.text,
-        'order_status': "Confirmed",
-        'order_city': cityController.text,
-        'order_state': stateController.text,
-        'order_products_quantity': product_quantity,
-        'order_products_total_price': product_total_price,
-      });
-
-      Firestore.instance
-          .collection('sellers')
-          .document(sellerId)
-          .collection('orders')
-          .document(orderId)
-          .setData({
-        'order_id': orderId,
-        'order_date': DateTime.now(),
-        'order_delivery_updates': delivery_updates,
-        'order_user_id': userId,
-        'order_seller_id': sellerId,
-        'order_products': products,
-        'order_user_name': userName,
-        'order_seller_name': sellerName,
-        'order_items': cart_items,
-        'order_total_price': cart_total_price,
-        'order_address_line1': addressLine1Controller.text,
-        'order_address_line2': addressLine2Controller.text,
-        'order_pincode': pinCodeController.text,
-        'order_status': "Confirmed",
-        'order_city': cityController.text,
-        'order_state': stateController.text,
-        'order_products_quantity': product_quantity,
-        'order_products_total_price': product_total_price,
-      });
-
-      String url = "https://api.textlocal.in/send/?";
-      String apiKey = "apikey=g5LDhBKYxFE-pQt8DZSR9TzJtt8JLTjHPVSkHEzvkt";
-      String message = "&message= " +
-          "Congratulations, " +
-          userName +
-          "\nYour Order for Rs." +
-          cart_total_price.toString() +
-          " has been placed successfully.\nOrder ID is " +
-          orderId;
-      String numbers = "&numbers=" + "91" + mobileController.text;
-      String data = apiKey + numbers + message;
-
-      var response = await http.post(Uri.encodeFull(url + data));
-
-      print(response.body.toString());
-      Navigator.pushReplacement(
-        context,
-        new MaterialPageRoute(builder: (context) => new MainPage()),
-      );
+          .collection('cart')
+          .document(i.toString())
+          .delete();
     }
+
+    await Firestore.instance.collection('users').document(userId).updateData({
+      'cart_items': 0,
+      'cart_total_price': 0,
+    });
+
+    Firestore.instance
+        .collection('users')
+        .document(userId)
+        .collection('orders')
+        .document(orderId)
+        .setData({
+      'order_id': orderId,
+      'order_date': DateTime.now(),
+      'order_delivery_updates': deliveryUpdates,
+      'order_user_id': userId,
+      'order_seller_id': sellerId,
+      'order_products': products,
+      'order_user_name': userName,
+      'order_seller_name': sellerName,
+      'order_items': cart_items,
+      'order_total_price': cart_total_price,
+      'order_address_line1': addressLine1Controller.text,
+      'order_address_line2': addressLine2Controller.text,
+      'order_pincode': pinCodeController.text,
+      'order_status': "Confirmed",
+      'order_city': cityController.text,
+      'order_state': stateController.text,
+      'order_products_quantity': productQuantity,
+      'order_products_total_price': productTotalPrice,
+    });
+
+    Firestore.instance
+        .collection('sellers')
+        .document(sellerId)
+        .collection('orders')
+        .document(orderId)
+        .setData({
+      'order_id': orderId,
+      'order_date': DateTime.now(),
+      'order_delivery_updates': deliveryUpdates,
+      'order_user_id': userId,
+      'order_seller_id': sellerId,
+      'order_products': products,
+      'order_user_name': userName,
+      'order_seller_name': sellerName,
+      'order_items': cart_items,
+      'order_total_price': cart_total_price,
+      'order_address_line1': addressLine1Controller.text,
+      'order_address_line2': addressLine2Controller.text,
+      'order_pincode': pinCodeController.text,
+      'order_status': "Confirmed",
+      'order_city': cityController.text,
+      'order_state': stateController.text,
+      'order_products_quantity': productQuantity,
+      'order_products_total_price': productTotalPrice,
+    });
+
+    String url = "https://api.textlocal.in/send/?";
+    String apiKey = "apikey=g5LDhBKYxFE-pQt8DZSR9TzJtt8JLTjHPVSkHEzvkt";
+    String message = "&message= " +
+        "Congratulations, " +
+        userName +
+        "\nYour Order for Rs." +
+        cart_total_price.toString() +
+        " has been placed successfully.\nOrder ID is " +
+        orderId;
+    String numbers = "&numbers=" + "91" + mobileController.text;
+    String data = apiKey + numbers + message;
+
+    var response = await http.post(Uri.encodeFull(url + data));
+
+    print(response.body.toString());
+
+    print("ORDER ID: "+orderId);
+    Navigator.pushReplacement(
+      context,
+      new MaterialPageRoute(
+          builder: (context) => new OrderConfirmPage(
+                orderId: orderId,
+              )),
+    );
   }
 }
